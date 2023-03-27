@@ -1,0 +1,13 @@
+{
+    "tiny_face_detector_model-weights_manifest.json": {
+      "filename": "tiny_face_detector_model-shard1",
+      "numShards": 1,
+      "type": "float32"
+    },
+    "face_expression_model-weights_manifest.json": {
+      "filename": "face_expression_model-shard1",
+      "numShards": 1,
+      "type": "float32"
+    }
+  }
+  
