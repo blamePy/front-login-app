@@ -1,0 +1,1 @@
+web: docker run -p $PORT:$PORT oscar93/myapplogin

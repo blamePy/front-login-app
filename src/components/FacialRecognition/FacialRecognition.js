@@ -3,7 +3,7 @@ import './FacialRecognition.css';
 import WebcamCapture from '../WebcamCapture/WebcamCapture';
 
 function FacialRecognition() {
-    const [showModal, setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(true);
 
     const handleModalOpen = () => {
         setShowModal(true);
@@ -15,9 +15,7 @@ function FacialRecognition() {
 
     return (
         <div className="facial-recognition">
-            <button onClick={handleModalOpen}>
-                Autenticación facial
-            </button>
+
             {showModal && (
                 <div className="modal">
                     <div className="modal-content">

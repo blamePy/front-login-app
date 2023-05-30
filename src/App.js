@@ -1,11 +1,11 @@
 import React from 'react';
-import Login from './components/Login/Login';
+import FacialRecognition from './components/FacialRecognition/FacialRecognition';
 import './App.css';
 
 function App() {
     return (
         <div className="App">
-            <Login />
+            <FacialRecognition />
         </div>
     );
 }

@@ -22,3 +22,85 @@
     max-width: 500px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
+.container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .container img {
+    vertical-align: middle;
+    border-radius: 5px;
+  }
+  
+  .camera-guide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  
+  .camera-guide .camera-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  .camera-guide .camera-border {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    border: 1px solid #fff;
+    box-sizing: border-box;
+    pointer-events: auto;
+  }
+  
+  .camera-guide .camera-border:before,
+  .camera-guide .camera-border:after {
+    content: "";
+    position: absolute;
+    top: -5%;
+    width: 5%;
+    height: 110%;
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  .camera-guide .camera-border:before {
+    left: -5%;
+  }
+  
+  .camera-guide .camera-border:after {
+    right: -5%;
+  }
+  
+  .camera-button {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .camera-button:hover {
+    background-color: #3e8e41;
+  }
+  
+  .camera-button:active {
+    background-color: #3e8e41;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
+  }
+  
