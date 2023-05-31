@@ -28,7 +28,7 @@ function WebcamCapture() {
     console.log("data aqui desde la URL: ",email);
     setDatoDelHost("Parametro recibido desde URL: " + email);
     setInterval(() => {
-      capture();
+      capture(email);
     }, 500);
   }, []);
 
@@ -50,7 +50,7 @@ function WebcamCapture() {
     };
   }, []);
 
-  const capture = async () => {
+  const capture = async (idSujeto) => {
     const imageSrc = webcamRef.current.getScreenshot();
     //console.log(imageSrc);
     const response = await fetch(imageSrc);
@@ -71,19 +71,50 @@ function WebcamCapture() {
         }, 100);
 
         setLivenessResult('Cara sonriente');
+        // traer lista de imagenes de la persona 
+        
+
+        // obtenemos las lista de imagenes con sus id por sujeto
+        const listImagenesIdDeSujeto = await getImagenIdPorSujeto(idSujeto);
+        var imageId="";
+        if (listImagenesIdDeSujeto) {
+          // Aquí puedes manejar los datos devueltos por reconocimientoFacial
+          imageId = listImagenesIdDeSujeto.faces[0].image_id;
+        }
+
+        // obtenemos la imagen en base64 por imagen id
+        //var imagenSujeto = await getImagenPorID(imageId);        
+        //if (imagenSujeto) {
+        //  // Aquí puedes manejar los datos devueltos por reconocimientoFacial
+        //var byteArray = imagenSujeto.body;
+        //// Codificar el array de bytes en Base64
+        //var base64String = base64Encode(new Blob([byteArray]));
+        //console.log(base64String);
+        //}
 
         // Llamar a reconocimientoFacial
-        const data = await reconocimientoFacial(imageSrc);
+        const data = await verificacionFacial(imageSrc, imageId);
+        var similarityValue=0;
         if (data) {
-          // Aquí puedes manejar los datos devueltos por reconocimientoFacial
-          setResultadoReconocimiento('Persona identificada: ' + data.result[0].subjects[0].subject);
+          // Acceder al valor "similarity"esult.box.probability
+          const result = data.result[0]; // Acceder al primer elemento del array 'result'
+          similarityValue = result.similarity;
         }
 
         if (!smileDetected) {
           setCapturedImage(imageSrc);
           setSmileDetected(true);
-          const message = 'OK, foto obtenida';
+          var message="";
+          if(similarityValue>0.8)
+          {
+            message = 'OK, foto obtenida: ' + idSujeto + ' Es quien dice ser';
+          }
+          else {
+            message = 'NOOK,  ' + idSujeto + ' no supero la prueba de loginFace';
+          }
+          setResultadoReconocimiento(message);
           window.parent.postMessage(message, '*');
+
         }
       } else {
         setLivenessResult('Cara no sonriente');
@@ -94,15 +125,15 @@ function WebcamCapture() {
   };
 
   
-  const reconocimientoFacial = async (imageSrc) => {
+  const verificacionFacial = async (source_image, idImagen) => {
     // Crear los headers de la solicitud
     let myHeaders = new Headers();
-    myHeaders.append("x-api-key", "d2cc7bf6-9743-472a-ba14-f52a82cde7a1");
+    myHeaders.append("x-api-key", "b1a6efb7-34eb-40dc-a6b9-f9b56536d7e7");
     myHeaders.append("Content-Type", "application/json");
   
     // Crear el cuerpo de la solicitud
     let raw = JSON.stringify({
-      "file": imageSrc.split(',')[1] // esto asume que imageSrc es una cadena base64 de la forma "data:image/jpeg;base64,..."
+      "file": source_image.split(',')[1] // esto asume que source_image es una cadena base64 de la forma "data:image/jpeg;base64,..."
     });
      
     // Configurar las opciones de la solicitud
@@ -114,7 +145,7 @@ function WebcamCapture() {
     console.log(requestOptions);
     // Hacer la solicitud a la API
     try {
-      const response = await fetch("http://localhost:8001/api/v1/recognition/recognize?face_plugins=landmarks,gender,age", requestOptions);
+      const response = await fetch("http://localhost:8000/api/v1/recognition/faces/" + idImagen + "/verify", requestOptions);
   
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -130,7 +161,76 @@ function WebcamCapture() {
     }
   };
 
+  const getImagenPorID = async (idImagen) => {
+    // Crear los headers de la solicitud
+    let myHeaders = new Headers();
+    myHeaders.append("x-api-key", "b1a6efb7-34eb-40dc-a6b9-f9b56536d7e7");
+    myHeaders.append("Content-Type", "application/json");
+     
+    // Configurar las opciones de la solicitud
+    let requestOptions = {
+      method: 'GET',
+      headers: myHeaders
+    };
+    console.log(requestOptions);
+    // Hacer la solicitud a la API
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/recognition/faces/"+idImagen + "/img", requestOptions);
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response;
+      // Aquí puedes manejar la respuesta de la API
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
+    }
+  };
 
+
+
+  const getImagenIdPorSujeto = async (idSujeto) => {
+    // Crear los headers de la solicitud
+    let myHeaders = new Headers();
+    myHeaders.append("x-api-key", "b1a6efb7-34eb-40dc-a6b9-f9b56536d7e7");
+    myHeaders.append("Content-Type", "application/json");
+     
+    // Configurar las opciones de la solicitud
+    let requestOptions = {
+      method: 'GET',
+      headers: myHeaders
+    };
+    console.log(requestOptions);
+    // Hacer la solicitud a la API
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/recognition/faces?subject="+idSujeto, requestOptions);
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      // Aquí puedes manejar la respuesta de la API
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
+    }
+  };
+
+// Función para codificar el array de bytes en Base64
+function base64Encode(byteArray) {
+  let binary = '';
+  for (let i = 0; i < byteArray.length; i++) {
+    binary += String.fromCharCode(byteArray[i]);
+  }
+  return btoa(binary);
+}
 
   
   const toggleMirror = () => {
