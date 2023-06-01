@@ -3,6 +3,7 @@ import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
 import { FaSyncAlt } from 'react-icons/fa';
 
+
 function WebcamCapture() {
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -71,9 +72,6 @@ function WebcamCapture() {
         }, 100);
 
         setLivenessResult('Cara sonriente');
-        // traer lista de imagenes de la persona 
-        
-
         // obtenemos las lista de imagenes con sus id por sujeto
         const listImagenesIdDeSujeto = await getImagenIdPorSujeto(idSujeto);
         var imageId="";
@@ -81,17 +79,7 @@ function WebcamCapture() {
           // Aquí puedes manejar los datos devueltos por reconocimientoFacial
           imageId = listImagenesIdDeSujeto.faces[0].image_id;
         }
-
-        // obtenemos la imagen en base64 por imagen id
-        //var imagenSujeto = await getImagenPorID(imageId);        
-        //if (imagenSujeto) {
-        //  // Aquí puedes manejar los datos devueltos por reconocimientoFacial
-        //var byteArray = imagenSujeto.body;
-        //// Codificar el array de bytes en Base64
-        //var base64String = base64Encode(new Blob([byteArray]));
-        //console.log(base64String);
-        //}
-
+        
         // Llamar a reconocimientoFacial
         const data = await verificacionFacial(imageSrc, imageId);
         var similarityValue=0;
@@ -128,7 +116,9 @@ function WebcamCapture() {
   const verificacionFacial = async (source_image, idImagen) => {
     // Crear los headers de la solicitud
     let myHeaders = new Headers();
-    myHeaders.append("x-api-key", "b1a6efb7-34eb-40dc-a6b9-f9b56536d7e7");
+    const apiKey = process.env.REACT_APP_API_KEY;    
+    const apiUrl = process.env.REACT_APP_API_URL;
+    myHeaders.append("x-api-key", apiKey);
     myHeaders.append("Content-Type", "application/json");
   
     // Crear el cuerpo de la solicitud
@@ -145,7 +135,7 @@ function WebcamCapture() {
     console.log(requestOptions);
     // Hacer la solicitud a la API
     try {
-      const response = await fetch("http://localhost:8000/api/v1/recognition/faces/" + idImagen + "/verify", requestOptions);
+      const response = await fetch(apiUrl+"/api/v1/recognition/faces/" + idImagen + "/verify", requestOptions);
   
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -160,43 +150,13 @@ function WebcamCapture() {
       return null;
     }
   };
-
-  const getImagenPorID = async (idImagen) => {
-    // Crear los headers de la solicitud
-    let myHeaders = new Headers();
-    myHeaders.append("x-api-key", "b1a6efb7-34eb-40dc-a6b9-f9b56536d7e7");
-    myHeaders.append("Content-Type", "application/json");
-     
-    // Configurar las opciones de la solicitud
-    let requestOptions = {
-      method: 'GET',
-      headers: myHeaders
-    };
-    console.log(requestOptions);
-    // Hacer la solicitud a la API
-    try {
-      const response = await fetch("http://localhost:8000/api/v1/recognition/faces/"+idImagen + "/img", requestOptions);
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response;
-      // Aquí puedes manejar la respuesta de la API
-      console.log(data);
-      return data;
-    } catch (error) {
-      console.error('Error:', error);
-      return null;
-    }
-  };
-
-
 
   const getImagenIdPorSujeto = async (idSujeto) => {
     // Crear los headers de la solicitud
     let myHeaders = new Headers();
-    myHeaders.append("x-api-key", "b1a6efb7-34eb-40dc-a6b9-f9b56536d7e7");
+    const apiKey = process.env.REACT_APP_API_KEY;    
+    const apiUrl = process.env.REACT_APP_API_URL;
+    myHeaders.append("x-api-key", apiKey);
     myHeaders.append("Content-Type", "application/json");
      
     // Configurar las opciones de la solicitud
@@ -207,7 +167,7 @@ function WebcamCapture() {
     console.log(requestOptions);
     // Hacer la solicitud a la API
     try {
-      const response = await fetch("http://localhost:8000/api/v1/recognition/faces?subject="+idSujeto, requestOptions);
+      const response = await fetch(apiUrl+"/api/v1/recognition/faces?subject="+idSujeto, requestOptions);
   
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -222,15 +182,6 @@ function WebcamCapture() {
       return null;
     }
   };
-
-// Función para codificar el array de bytes en Base64
-function base64Encode(byteArray) {
-  let binary = '';
-  for (let i = 0; i < byteArray.length; i++) {
-    binary += String.fromCharCode(byteArray[i]);
-  }
-  return btoa(binary);
-}
 
   
   const toggleMirror = () => {
